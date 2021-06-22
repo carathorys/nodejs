@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { Action, Controller } from '../decorators';
+import { Parameter } from '../decorators/parameter.decorator';
 import { LoggerService } from '../services/logger.service';
 import { SchedulerService } from '../services/scheduler.service';
 
@@ -18,10 +19,11 @@ export class SchedulerController {
   ) {}
 
   @Action({
-    path: 'start',
+    path: 'start/:id',
     method: 'get',
   })
-  public async start(): Promise<any> {
+  public async start(@Parameter({ from: 'path' }) id: string): Promise<any> {
+    console.log('ID:', id);
     this.SchedulerService.AddJob({
       id: '1',
       language: 'hu',
@@ -35,17 +37,7 @@ export class SchedulerController {
     path: 'show',
     method: 'get',
   })
-  public async show(req: Request, res: Response): Promise<any> {
-    let jobsFound = this.SchedulerService.FilterJobs((x) => true);
-    if (!jobsFound || jobsFound.length === 0) {
-      this.logger.Info('There were no jobs found; {jobs}', {
-        key: 'jobs',
-        value: JSON.stringify(jobsFound),
-      });
-      res.statusCode = 404;
-      res.send();
-    } else {
-      res.send(jobsFound);
-    }
+  public async show(): Promise<any> {
+    return this.SchedulerService.FilterJobs((x) => true);
   }
 }

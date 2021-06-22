@@ -28,14 +28,11 @@ app.use(async (req, res, next) => {
 
 const storedData = Instance.getMetadata();
 storedData.forEach((metadata, meta) => {
-  // console.log('Metadata:', metadata);
-  // console.log('Controller: ', meta);
-
   if (!metadata) {
     return;
   }
   let path = '/' + (metadata.basePath ?? meta.toLowerCase().replace('controller', ''));
-  // console.log(`Path for ${meta} is: ${path}`);
+
   metadata.actions.forEach((actionMeta, actionName) => {
     const finalPath = `${path}/${actionMeta.path}`;
     const handle: RequestHandler = async (req, res, next): Promise<void> => {
@@ -45,6 +42,7 @@ storedData.forEach((metadata, meta) => {
           var resultData = await controllerInstance[actionName]
             .bind(controllerInstance)
             .call(controllerInstance, req, res, next);
+          console.log(resultData);
           if (resultData) {
             res.send(resultData);
             return next();
@@ -56,7 +54,7 @@ storedData.forEach((metadata, meta) => {
         return next(error);
       }
     };
-    // console.log(`Setting up action (${actionName}) for controller (${meta}) on path ${finalPath}`);
+
     switch (actionMeta.method) {
       case 'get':
         app.get(finalPath, handle);
@@ -74,17 +72,16 @@ storedData.forEach((metadata, meta) => {
   });
 });
 
-app.get('/', (req, res) => {
+app.get('/', (req, res, next) => {
   var scheduler = services.getInstance(SchedulerController);
   console.log(req);
-  scheduler.start();
   res.send('Well done!');
 });
 
-app.get('/list/:id', (req, res) => {
-  var scheduler = services.getInstance(SchedulerController);
-  scheduler.show(req, res);
-});
+// app.get('/list/:id', (req, res) => {
+//   var scheduler = services.getInstance(SchedulerController);
+//   scheduler.show(req, res);
+// });
 
 app.listen(3000, () => {
   console.log('The application is listening on port 3000!');
