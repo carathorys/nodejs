@@ -1,2 +1,5 @@
-export * from './scheduler.controller';
-export * from './monitor.controller';
+import { SchedulerController } from './scheduler.controller';
+import { MonitorController } from './monitor.controller';
+
+export { SchedulerController, MonitorController };
+export default { SchedulerController, MonitorController };

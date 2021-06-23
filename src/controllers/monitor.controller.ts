@@ -14,6 +14,7 @@ export class MonitorController {
     method: 'get',
   })
   public async index(): Promise<any> {
-    return null;
+    await new Promise<void>((res) => res());
+    return "Ok";
   }
 }

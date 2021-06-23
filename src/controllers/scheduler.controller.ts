@@ -1,18 +1,18 @@
 import { Request, Response } from 'express';
+import { stringify } from 'uuid';
 import { Action, Controller } from '../decorators';
 import { Parameter } from '../decorators/parameter.decorator';
 import { LoggerService } from '../services/logger.service';
 import { SchedulerService } from '../services/scheduler.service';
 
-interface postParameters {
+interface PostData {
   title: string;
-  lang: 'hu' | 'en' | 'de';
+  language: 'hu' | 'en';
 }
-
 @Controller({
   basePath: 'scheduler',
 })
-export class SchedulerController {
+class SchedulerController {
   constructor(
     private readonly SchedulerService: SchedulerService,
     private readonly logger: LoggerService,
@@ -20,17 +20,31 @@ export class SchedulerController {
 
   @Action({
     path: 'start/:id',
-    method: 'get',
+    method: 'post',
   })
-  public async start(@Parameter({ from: 'path' }) id: string): Promise<any> {
-    console.log('ID:', id);
+  public async start(
+    @Parameter({ from: 'payload', alias: '', type: 'object' }) payloadData: PostData,
+    @Parameter({ from: 'header', alias: 'token', type: 'string' }) token: string,
+    @Parameter({ from: 'path', alias: 'id', type: 'number' }) id: string,
+    @Parameter({ from: 'query', alias: 'sure', type: 'boolean' }) areYouSure: boolean,
+  ): Promise<any> {
+    console.log(
+      `Invoked with params: {token: "${token}", id: "${id}", areYouSure: ${areYouSure}, payloadData: "${JSON.stringify(
+        payloadData,
+      )}"}`,
+    );
     this.SchedulerService.AddJob({
       id: '1',
       language: 'hu',
       tags: [],
       title: "I Don't know",
     });
-    return 'MAYBE OK (?)';
+    return {
+      token,
+      id,
+      sure: areYouSure === true,
+      payloadData,
+    };
   }
 
   @Action({
@@ -41,3 +55,4 @@ export class SchedulerController {
     return this.SchedulerService.FilterJobs((x) => true);
   }
 }
+export { SchedulerController };

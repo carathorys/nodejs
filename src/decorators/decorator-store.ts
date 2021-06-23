@@ -52,4 +52,4 @@ class DecoratorStore {
   }
 }
 
-export const Instance = DecoratorStore.GetInstance();
+export const DecoratorDataStore = DecoratorStore.GetInstance();
